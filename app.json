@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "bet-stats",
+    "name": "Bet Stats",
     "slug": "bet-stats",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -22,7 +22,15 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "scheme": "bet-stats",
+    "plugins": [
+    ],
+    "androidStatusBar": {
+      "backgroundColor": "#ffffff",
+      "barStyle": "dark-content"
     }
   }
 }
