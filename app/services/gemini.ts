@@ -177,21 +177,65 @@ class GeminiService {
     Últimos resultados: ${JSON.stringify(results)}
     
     Considere:
-    1. Padrões recorrentes
+    1. Padrões recorrentes nos últimos resultados
     2. Probabilidades estatísticas
     3. Gerenciamento de risco
-    4. Máximo de 10 cores no padrão
+    4. O padrão DEVE ter entre 4 e 10 cores
     5. Valor inicial realista (entre 2 e 10 reais)
-    6. Máximo de 3 martingales
+    6. Máximo de 2 martingales
+    7. Evite usar o branco como padrão
+    8. O padrão deve ser um array de cores, exemplo: ["red", "black", "black"]
     
-    Crie uma estratégia completa com nome descritivo e configurações.
+    Retorne uma estratégia completa com:
+    - Nome descritivo
+    - Padrão de cores para identificar (array obrigatório)
+    - Cor para apostar quando encontrar o padrão
+    - Valor inicial da aposta
+    - Número de martingales
     `;
 
     try {
       const result = await model.generateContent(prompt);
-      return JSON.parse(result.response.text());
-    } catch (error) {
-      console.error('Erro ao gerar estratégia:', error);
+      console.log('Resposta bruta da IA:', result.response.text());
+      
+      const strategy = JSON.parse(result.response.text());
+      console.log('Estratégia parseada:', strategy);
+      
+      // Validações detalhadas
+      if (!strategy.name) {
+        throw new Error('Nome da estratégia não fornecido');
+      }
+      
+      if (!Array.isArray(strategy.pattern)) {
+        throw new Error('Padrão deve ser um array');
+      }
+      
+      if (strategy.pattern.length < 3 || strategy.pattern.length > 10) {
+        throw new Error(`Padrão deve ter entre 3 e 10 cores, recebido: ${strategy.pattern.length}`);
+      }
+      
+      if (!strategy.pattern.every((color: string) => ['red', 'black', 'white'].includes(color))) {
+        throw new Error('Padrão contém cores inválidas');
+      }
+      
+      if (!strategy.betConfig?.targetColor || 
+          !strategy.betConfig?.initialAmount || 
+          !strategy.betConfig?.martingale) {
+        throw new Error('Configurações de aposta incompletas');
+      }
+
+      return {
+        name: strategy.name,
+        pattern: strategy.pattern,
+        betConfig: {
+          targetColor: strategy.betConfig.targetColor,
+          initialAmount: Number(strategy.betConfig.initialAmount),
+          martingale: Number(strategy.betConfig.martingale)
+        }
+      };
+    } catch (error: unknown) {
+      console.error('Erro detalhado ao gerar estratégia:', error);
+      console.error('Mensagem de erro:', error instanceof Error ? error.message : 'Erro desconhecido');
       throw error;
     }
   }

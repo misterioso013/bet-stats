@@ -447,10 +447,13 @@ export default function AnalyticsPanel({
                 <MaterialIcons name="close" size={24} color="#666" />
               </Pressable>
             </View>
-            <StrategyForm onSave={(strategy) => {
-              onSaveStrategy(strategy);
-              setShowStrategyForm(false);
-            }} />
+            <StrategyForm 
+              onSave={(strategy) => {
+                onSaveStrategy(strategy);
+                setShowStrategyForm(false);
+              }}
+              lastResults={lastResults}
+            />
           </View>
         </View>
       </Modal>

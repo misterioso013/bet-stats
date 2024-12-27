@@ -1,19 +1,22 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { Color, Pattern, Strategy } from '../types/strategy';
 import ColorSelector from './ColorSelector';
 import { MaterialIcons } from '@expo/vector-icons';
+import { geminiService } from '../services/gemini';
 
 interface Props {
   onSave: (strategy: Omit<Strategy, 'id' | 'createdAt'>) => void;
+  lastResults: Array<{color: string, number: number}>;
 }
 
-export default function StrategyForm({ onSave }: Props) {
+export default function StrategyForm({ onSave, lastResults }: Props) {
   const [name, setName] = useState('');
   const [pattern, setPattern] = useState<Pattern[]>([]);
   const [betAmount, setBetAmount] = useState('');
   const [martingale, setMartingale] = useState('0');
   const [targetColor, setTargetColor] = useState<Color>('red');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const addColor = (color: Color) => {
     setPattern([...pattern, { color, position: pattern.length + 1 }]);
@@ -54,12 +57,50 @@ export default function StrategyForm({ onSave }: Props) {
     }
   };
 
+  const generateWithAI = async () => {
+    setIsGenerating(true);
+    try {
+      const strategy = await geminiService.generateStrategy(lastResults);
+      
+      setName(strategy.name);
+      setPattern(strategy.pattern.map((color: Color, index: number) => ({
+        color,
+        position: index + 1
+      })));
+      setTargetColor(strategy.betConfig.targetColor);
+      setBetAmount(strategy.betConfig.initialAmount.toString());
+      setMartingale(strategy.betConfig.martingale.toString());
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível gerar a estratégia. Verifique sua API key.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <ScrollView 
       style={styles.container}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.contentContainer}
     >
+      <View style={styles.header}>
+        <Text style={styles.title}>Nova Estratégia</Text>
+        <Pressable 
+          style={[styles.aiButton, isGenerating && styles.aiButtonDisabled]}
+          onPress={generateWithAI}
+          disabled={isGenerating}
+        >
+          {isGenerating ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <>
+              <MaterialIcons name="psychology" size={20} color="#fff" />
+              <Text style={styles.aiButtonText}>Gerar com IA</Text>
+            </>
+          )}
+        </Pressable>
+      </View>
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Informações Básicas</Text>
         <TextInput
@@ -291,5 +332,32 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.5,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  aiButton: {
+    backgroundColor: '#f4511e',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    borderRadius: 8,
+    gap: 4,
+  },
+  aiButtonDisabled: {
+    opacity: 0.7,
+  },
+  aiButtonText: {
+    color: '#fff',
+    fontWeight: '500',
+    fontSize: 14,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
   },
 }); 
