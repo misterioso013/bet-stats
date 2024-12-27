@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from 'react';
 import StrategyForm from './StrategyForm';
 import StatsModal from './StatsModal';
 import SupportModal from './SupportModal';
+import GeminiModal from './GeminiModal';
 
 interface PotentialStrategy {
   strategy: Strategy;
@@ -57,6 +58,7 @@ export default function AnalyticsPanel({
   const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
   const [showSupport, setShowSupport] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showGemini, setShowGemini] = useState(false);
 
   const pulseConfidence = (confidence: number) => {
     if (confidence > 50) {
@@ -164,6 +166,12 @@ export default function AnalyticsPanel({
               onPress={() => setShowSupport(true)}
             >
               <MaterialIcons name="favorite" size={24} color="#f4511e" />
+            </Pressable>
+            <Pressable
+              style={styles.iconButton}
+              onPress={() => setShowGemini(true)}
+            >
+              <MaterialIcons name="psychology" size={24} color="#666" />
             </Pressable>
           </View>
         </View>
@@ -460,6 +468,12 @@ export default function AnalyticsPanel({
       <SupportModal 
         visible={showSupport}
         onClose={() => setShowSupport(false)}
+      />
+
+      <GeminiModal
+        visible={showGemini}
+        onClose={() => setShowGemini(false)}
+        lastResults={lastResults}
       />
     </View>
   );
@@ -878,18 +892,18 @@ const styles = StyleSheet.create({
   loss: {
     color: '#f44336',
   },
-  toggleButton: {
-    backgroundColor: '#4caf50',
-    padding: 8,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    transform: [{ scale: 1 }],
-  },
-  toggleButtonActive: {
-    backgroundColor: '#f44336',
-  },
   toggleButtonAnimating: {
     transform: [{ scale: 0.95 }],
+  },
+  strategyCard: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
 }); 

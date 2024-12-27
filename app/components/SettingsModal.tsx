@@ -1,7 +1,9 @@
 import { View, Text, StyleSheet, Modal, Pressable, TextInput } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 interface Props {
   visible: boolean;
   onClose: () => void;
@@ -15,9 +17,31 @@ interface Props {
 export default function SettingsModal({ visible, onClose, settings, onSave }: Props) {
   const [tempSettings, setTempSettings] = useState(settings);
 
-  const handleSave = () => {
-    onSave(tempSettings);
-    onClose();
+  useEffect(() => {
+    loadSavedSettings();
+  }, []);
+
+  const loadSavedSettings = async () => {
+    try {
+      const savedSettings = await AsyncStorage.getItem('analysis_settings');
+      if (savedSettings) {
+        const parsed = JSON.parse(savedSettings);
+        setTempSettings(parsed);
+        onSave(parsed); // Atualiza as configurações do app
+      }
+    } catch (error) {
+      console.error('Erro ao carregar configurações:', error);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      await AsyncStorage.setItem('analysis_settings', JSON.stringify(tempSettings));
+      onSave(tempSettings);
+      onClose();
+    } catch (error) {
+      console.error('Erro ao salvar configurações:', error);
+    }
   };
 
   return (
@@ -62,8 +86,8 @@ export default function SettingsModal({ visible, onClose, settings, onSave }: Pr
             <Slider
               style={styles.slider}
               minimumValue={20}
-              maximumValue={100}
-              step={10}
+              maximumValue={1000}
+              step={20}
               value={tempSettings.confidenceWindow}
               onValueChange={(value: number) =>
                 setTempSettings(prev => ({ ...prev, confidenceWindow: value }))

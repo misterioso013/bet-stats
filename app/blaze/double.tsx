@@ -8,6 +8,7 @@ import AnalyticsPanel from '../components/AnalyticsPanel';
 import { Audio } from 'expo-av';
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync } from 'expo-keep-awake';
+import SupportModal from '../components/SupportModal';
 
 interface PotentialStrategy {
   strategy: Strategy;
@@ -37,6 +38,7 @@ export default function BlazeDouble() {
   const [sound, setSound] = useState<Audio.Sound>();
   const [waitingStrategies, setWaitingStrategies] = useState<WaitingStrategy[]>([]);
   const donationAlertRef = useRef<NodeJS.Timeout>();
+  const [showSupport, setShowSupport] = useState(false);
 
   useEffect(() => {
     const setupApp = async () => {
@@ -521,6 +523,10 @@ export default function BlazeDouble() {
           domStorageEnabled={true}
         />
       </View>
+      <SupportModal 
+        visible={showSupport}
+        onClose={() => setShowSupport(false)}
+      />
     </View>
   );
 }
