@@ -7,6 +7,7 @@ import StrategyForm from './StrategyForm';
 import StatsModal from './StatsModal';
 import SupportModal from './SupportModal';
 import GeminiModal from './GeminiModal';
+import ResultsHistoryModal from './ResultsHistoryModal';
 
 interface PotentialStrategy {
   strategy: Strategy;
@@ -37,6 +38,12 @@ interface Props {
   onSaveStrategy: (strategy: Omit<Strategy, 'id' | 'createdAt'>) => void;
   onDeleteStrategy: (id: string) => void;
   waitingStrategies: WaitingStrategy[];
+  verifiedResults?: Array<{
+    number: number;
+    color: string;
+    seed: string;
+    hash: string;
+  }>;
 }
 
 export default function AnalyticsPanel({
@@ -51,6 +58,7 @@ export default function AnalyticsPanel({
   onSaveStrategy,
   onDeleteStrategy,
   waitingStrategies,
+  verifiedResults,
 }: Props) {
   const [showSettings, setShowSettings] = useState(false);
   const [showStrategyForm, setShowStrategyForm] = useState(false);
@@ -59,6 +67,7 @@ export default function AnalyticsPanel({
   const [showSupport, setShowSupport] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showGemini, setShowGemini] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   const pulseConfidence = (confidence: number) => {
     if (confidence > 50) {
@@ -172,6 +181,12 @@ export default function AnalyticsPanel({
               onPress={() => setShowGemini(true)}
             >
               <MaterialIcons name="psychology" size={24} color="#666" />
+            </Pressable>
+            <Pressable
+              style={styles.iconButton}
+              onPress={() => setShowHistory(true)}
+            >
+              <MaterialIcons name="history" size={24} color="#666" />
             </Pressable>
           </View>
         </View>
@@ -477,6 +492,14 @@ export default function AnalyticsPanel({
         visible={showGemini}
         onClose={() => setShowGemini(false)}
         lastResults={lastResults}
+      />
+
+      <ResultsHistoryModal
+        visible={showHistory}
+        onClose={() => setShowHistory(false)}
+        results={lastResults}
+        verifiedResults={verifiedResults}
+        historySize={settings.confidenceWindow}
       />
     </View>
   );
