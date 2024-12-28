@@ -9,6 +9,7 @@ import { Audio } from 'expo-av';
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync } from 'expo-keep-awake';
 import SupportModal from '../components/SupportModal';
+import BlazeVerifier from '../services/blazeVerifier';
 
 interface PotentialStrategy {
   strategy: Strategy;
@@ -27,6 +28,7 @@ interface WaitingStrategy {
 export default function BlazeDouble() {
   const [strategies, setStrategies] = useState<Strategy[]>([]);
   const [lastResults, setLastResults] = useState<Array<{color: string, number: number}>>([]);
+  const [lastSeed, setLastSeed] = useState<string | null>(null);
   const [showWebView, setShowWebView] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout>();
@@ -306,11 +308,18 @@ export default function BlazeDouble() {
 
   const onMessage = (event: any) => {
     const data = JSON.parse(event.nativeEvent.data);
+
     
-    if (Array.isArray(data)) {
-      setLastResults(data);
-      checkStrategies(data);
-    }
+      if (data.seed) {
+        setLastSeed(data.seed);
+        const previousResults = BlazeVerifier.generatePreviousResults(data.seed, settings.confidenceWindow);
+        const parsedResults = previousResults.map((result: any) => ({
+          color: result.color,
+          number: result.number
+        }));
+        setLastResults(parsedResults);
+        checkStrategies(parsedResults);
+      }
   };
 
   let toggleCount = 0;
@@ -419,12 +428,14 @@ export default function BlazeDouble() {
                   hour[1],
                   new Date().getSeconds()
                 );
+                const seed = document.querySelector("#roulette-game-history > div.body > div.server-roll > div").textContent;
                 window.ReactNativeWebView.postMessage(JSON.stringify({
                   result: result[0].number,
                   color: result[0].color,
                   date: date_time.toLocaleString("pt-BR", {
                     timeZone: "America/Sao_Paulo",
                   }),
+                  seed: seed,
                 }));
               }
             }, 500);
