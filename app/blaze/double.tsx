@@ -2,14 +2,14 @@ import { WebView } from 'react-native-webview';
 import { StyleSheet, View, Text, Vibration, Alert } from 'react-native';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Strategy } from '../types/strategy';
-import StrategyForm from '../components/StrategyForm';
-import AnalyticsPanel from '../components/AnalyticsPanel';
+import { Strategy } from '../../types/strategy';
+import StrategyForm from '../../components/StrategyForm';
+import AnalyticsPanel from '../../components/AnalyticsPanel';
 import { Audio } from 'expo-av';
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync } from 'expo-keep-awake';
-import SupportModal from '../components/SupportModal';
-import BlazeVerifier from '../services/blazeVerifier';
+import SupportModal from '../../components/SupportModal';
+import BlazeVerifier from '../../services/blazeVerifier';
 
 interface PotentialStrategy {
   strategy: Strategy;
