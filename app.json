@@ -19,18 +19,23 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.alldevs.betstats"
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
     "scheme": "bet-stats",
-    "plugins": [
-    ],
+    "plugins": [],
     "androidStatusBar": {
       "backgroundColor": "#ffffff",
       "barStyle": "dark-content"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4eec26f4-568a-47c1-8fb9-3c71fa2a73ce"
+      }
     }
   }
 }
